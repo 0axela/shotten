@@ -1,0 +1,30 @@
+Question UML:
+
+
+Joueur:
+
+    -> OK: J'ai mis Borne** bornes_revendiquees dans Joueur à la place de Borne* ?
+    -> OK: J'ai ajouté une méthode ajouterBorneRevendiquee dans Joueur vu qu'elle n'y était pas
+    -> jouerCarte(int i) dans Joueur
+    -> afficherCartes() dans Joueur
+    -> piocher() dans Joueur
+
+Combinaison:
+
+    -> Au lieu de faire initializeSomme4() pour quand il y a 4 cartes, tout gérer dans initializeSomme()
+
+
+Borne:
+
+    -> Joueur* premierAposer c'est mieux que int
+
+Partie:
+
+    -> mettre const Clan* clan[54] au lieu de Clan* clan[54]
+    -> enlever le const de la méthode getFrontiere(int i)
+    -> VerifGagnantPartie(Joueur* j). Idem verifGagnantManche
+
+
+Général:
+    -> Partie doit créer les pioches et la défausse aussi, donc changements à faire dans Partie
+    -> Composition entre Borne et Combinaison
