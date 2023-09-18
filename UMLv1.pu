@@ -1,0 +1,225 @@
+@startuml
+skinparam nodesep 105
+skinparam ranksep 105
+
+abstract class Carte{
+    - joueur: Joueur
+    - borne: Borne
+    - defausse: Defausse
+    - pioche: Pioche
+}
+
+note left of Carte::numero_borne
+     -1 si elle peut pas être placée sur une borne
+     0 si pas sur une borne actuellement
+ end note
+ 
+note left of Carte::numero_joueur
+     0 si n'est pas dans la main d'un joueur
+ end note
+ 
+
+abstract class Pioche {
+- nb_cartes: integer
+- cartes: Cartes[]
+
++Distribuer()
++Mélanger()
++getCarteAPiocher()
++estVide()
+}
+
+note left of Pioche::cartes
+     on considère le tableau de 
+     cartes comme une pile
+ end note
+
+class Pioche_Clan{
+}
+
+class Pioche_Tactique{
+}
+
+class Defausse {
+    -cartes: Cartes[]
+    +AfficherDefausse()
+}
+
+class Clan {
+    - numero: Numero
+    - couleur: Couleur
+    +getNumero()
+    +getCouleur()
+}
+
+abstract class Tactique {
+    -nom: NomTactique
+    
+    +Action()
+}
+
+enum NomTactique{
+joker
+espion
+porte bouclier
+colin maillard
+combat de boue
+chasseur de tete
+stratege
+banshee
+traitre    
+}
+
+class Ruse {
+}
+
+class Elite {
+    -numero: Numero
+    -couleur: Couleur
+    +getNumero()
+    +getCouleur()
+    +setNumero()
+    +setCouleur()
+}
+ 
+  
+class Combat {
+}
+
+note left of Elite
+         si nom ="espion", numero = 7; si nom ="porte-bouclier", 
+         numero de 1 à 3 choisi au moment de revendiquer,
+         si nom ="joker" numero à choisir entre 1 et 9 au moment de revendiquer
+ end note
+
+note left of Elite
+         pas de valeur initialement, choisie au moment de revendiquer
+ end note
+
+class Partie {
+
+    -mode: Mode
+    -gagnant: Joueur
+    -IA: bool
+    - nb_manches
+    - joueur1: Joueur
+    - joueur2: Joueur
+    - frontiere: Borne[9]
+    + Partie()
+    +VerifGagnantPartie()
+    +VerifGagnantManche() 
+    +DonnerMain()   
+    +NombreManches()
+
+}
+
+
+class Joueur {
+
+    -numero[1..2]: integer
+    -nom: string
+    -nb_tactiques_jouees: integer
+    -score : integer
+    -bornes_revendiquee: Borne[]
+    -cartes: Carte[0..7]
+
+    +JouerCarte()
+    +Revendiquer()
+    +Piocher() 
+    +AfficherAideCombi()  
+}
+
+class IA {
+
+    JouerAleatoirement()    
+
+}
+
+class Borne {
+
+    -proprietaire: Joueur
+    -cartes: Cartes[2][0..4]
+    -combinaisons: Combinaison[2]
+    -isCombatBoue: bool
+    -isColinMaillard: bool
+
+    + VerifRevendication()
+    + NbCartes()
+
+}
+
+note left of Borne::cartes
+matrice de 2 lignes et 3 colonnes (4 si isCombatBoue)
+indice 0: joueur 1
+indice 1: joueur 2
+end note
+
+note left of Borne::VerifRevendication()
+        si isColinMaillard, pas de combinaison 
+        : addition du numero des cartes du joueur
+end note
+
+
+enum Couleur {
+rouge
+bleu
+beige
+jaune
+vert
+violet
+}
+
+enum Mode{
+normal
+tactique
+expert
+}
+
+class Combinaison {
+    - nom : NomCombinaison
+    - puissance : integer
+    - sommeCartes : integer
+    - borne : Borne
+    + verifCombinaison()
+    }
+
+enum NomCombinaison{
+    suite_couleur
+    brelan
+    couleur
+    suite
+    somme
+}
+
+enum Numero{
+un
+deux
+trois
+quatre
+cinq
+six
+sept
+huit
+neuf 
+}
+
+Pioche <|-- Pioche_Clan
+Pioche <|-- Pioche_Tactique
+
+Joueur <|-- IA
+
+Carte <|-- Clan
+Carte <|-d- Tactique
+
+Tactique <|-- Ruse
+Tactique <|-- Elite
+Tactique <|-- Combat
+
+Partie "1" *-- "2" Joueur
+Combinaison o-- Carte
+Pioche "0..1" o-- "*" Carte
+Borne "0..1" o-- "0..8" Carte
+Defausse "0..1" o-- "*" Carte
+Joueur "0..1" o-- "0..7" Carte
+
+@enduml

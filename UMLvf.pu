@@ -1,0 +1,336 @@
+@startuml
+skinparam nodesep 105
+skinparam ranksep 105
+
+
+enum NomTactique{
+	pasdenom
+	joker
+	espion
+	porte bouclier
+	colin maillard
+	combat de boue
+	chasseur de tete
+	stratege
+	banshee
+	traitre    
+}
+
+enum Couleur {
+	pasdecouleur
+	rouge
+	bleu
+	beige
+	jaune
+	vert
+	violet
+}
+
+enum Mode{
+	normal
+	tactique
+	expert
+}
+
+enum NomCombinaison{
+	suite_couleur
+	brelan
+	couleur
+	suite
+	somme
+}
+
+enum Numero{
+	pasdenumero = 0
+	un = 1
+	deux = 2
+	trois = 3
+	quatre = 4
+	cinq = 5
+	six = 6
+	sept = 7
+	huit = 8
+	neuf = 9
+}
+
+abstract class Carte{
+	# {virtual} print(ostream& f) const: void
+	+ {virtual} getCouleur() const: Couleur
+	+ {virtual} getNumero() const: Numero
+	+ {virtual} getNom() const: NomTactique
+
+	{abstract} + {virtual} executerEffet(): void
+	+ {virtual} ~Carte()
+}
+
+class Clan {
+	# {virtual} print(ostream& f) const: void
+	- numero: Numero
+	- couleur: Couleur
+	+ Clan(Numero n, Couleur c)
+	+ executerEffet(): void
+}
+
+abstract class EffetTactique {
+	{abstract} + {virtual} appliquerEffet(): void
+	+ {virtual} ~EffetTactique()
+}
+
+class JokerEffet {
+	- joker: Elite*
+	+ JokerEffet(Elite* jok)
+	+ appliquerEffet(): void
+}
+
+class EspionEffet {
+	- espion: Elite*
+	+ EspionEffet(Elite* esp)
+	+ appliquerEffet(): void
+}
+
+class PorteBouclierEffet {
+	- pb: Elite*
+	+ PorteBouclierEffet(Elite* p)
+	+ appliquerEffet(): void
+}
+
+class ColinMaillardEffet {
+	- colmaill: Combat*
+	+ ColinMaillardEffet(Combat* c)
+	+ appliquerEffet(): void
+}
+
+
+class CombatBoueEffet {
+	- combat_boue: Combat*
+	+ CombatBoueEffet(Combat* cb)
+	+ appliquerEffet(): void
+}
+
+class ChasseurTeteEffet {
+	- chasseur_tete: Ruse*
+	+ ChasseurTeteEffet(Ruse* ct)
+	+ appliquerEffet(): void
+}
+
+class BansheeEffet {
+	- bansh: Ruse*
+	+ BansheeEffet(Ruse* b)
+	+ appliquerEffet(): void
+}
+
+class TraitreEffet {
+	- traitre: Ruse*
+	+ TraitreEffet(Ruse* t)
+	+ appliquerEffet(): void
+}
+
+class StrategeEffet {
+	- strat: Ruse*
+	+ StrategeEffet(Ruse* str)
+	+ appliquerEffet(): void
+}
+
+abstract class Tactique {
+	# {virtual} print(ostream& f) const: void
+
+	- nom: NomTactique
+	- effet: EffetTactique*
+
+	+ Tactique(NomTactique n)
+	+ executerEffet(): void
+	+ {virtual} ~Tactique()
+}
+
+class Elite {
+	# {virtual} print(ostream& f) const: void
+	- numero: Numero
+	- couleur: Couleur
+	+ Elite(NomTactique n)
+	
+}
+
+class Combat {
+	# {virtual} print(ostream& f) const: void
+	+ Combat(NomTactique n)
+}
+
+class Ruse {
+	# {virtual} print(ostream& f) const: void
+	+ Ruse(NomTactique n)
+}
+
+
+abstract class Pioche <Type> {
+	# pile: vector<Type*>
+	+ Empiler(Type* carte): void
+	+ getCarteAPiocher(): Type*
+	+ estVide() bool
+	+ Melanger(): void
+	+ AjouterEnDessous(Type* carte): void
+	+ Afficher(): void
+	+ {virtual} ~Pioche()
+}
+
+class Pioche_Clan <Clan> {
+	+ Pioche_Clan(Clan** cartes_clan)
+}
+
+
+class Pioche_Tactique <Tactique> {
+	+ Pioche_Tactique(Tactique** cartes_tactiques)
+}
+
+class Defausse {
+	- cartes: vector<const Carte*>
+	+ ajouterCarte(Carte* c): void
+	+ AfficherDeffausse(): void
+}
+
+class Joueur {
+	- numero: int
+	- nom: string
+	- nb_tactiques_jouees: int
+	- scoreManche: int
+	- scorePartie: int
+	- vecotr<Borne*> bornes_revendiquees
+	- cartes: Carte*[7]
+	- nb_cartes_en_main: int
+	- joker_joue: bool
+
+	+ Joueur()
+	+ Joueur(int num)
+	+ Joueur(int num, string n)
+	+ {virtual} ~Joueur()
+	
+	+ ajouterBorneRevendiquee(Borne* b): void
+	+ choisirNom(): string
+	+ afficherCartes(): void
+	+ {virtual} JouerCarte(): void
+        + {virtual} DemanderRevendication(): void
+	+ piocher(): Carte*
+	+ Clear(): void
+	+ DecNbCartesEnMain(): void
+	+ IncNbCartesEnMain(): void
+}
+
+class IA {
+	+ IA()
+	+ JouerCarte(): void
+        + DemanderRevendication(): void
+}
+
+class Combinaison {
+	
+	- c1: const Carte*
+	- c2: const Carte*
+	- c3: const Carte*
+	- c4: const Carte*
+	- nom: NomCombinaison
+	- sommeCartes: int
+	- valeur: int
+	- initializeNom(): const NomCombinaison
+	- initializeSomme(): const int
+	- initializeValeur(): const int
+
+	+ Combinaison(const carte& c1, const carte& c2, const carte& c3)
+	+ Combinaison(const carte& c1, const carte& c2, const carte& c3, const carte& c4)
+	
+}
+
+class Borne {
+
+	- numero: const size_t
+	- nbCartes1: size_t
+	- nbCartes2: size_t
+	- proprietaire: Joueur*
+	- premierAposer: Joueur*
+	- cartes1: const Carte**
+	- cartes2: const Carte**
+	- isCombatBoue: bool
+	- isColinMaillard: bool
+
+	+ Borne(size_t n)
+	+ ~Borne()
+	+ ajouter_cartes1(const Carte& c): void
+	+ ajouter_cartes2(const Carte& c): void
+	+ verifRevendication(size_t j): void
+	+ CombatBoueTrue(): void
+	+ ColinMaillardTrue(): void
+	+ Clear(): void
+}
+
+class Partie <<Singleton>> {
+	- instanceUnique: static Partie*
+	- ~Partie()
+	- Partie()
+
+	- mode: Mode
+	- gagnant: Joueur*
+	- ia: IA*
+	- nb_manches: int
+	- joueur1: Joueur*
+	- joueur2: Joueur*
+	- frontiere: Borne*[NB_BORNE]
+	- commence: Joueur*
+	- clan: Clan*[NB_CLAN]
+	- tactique: Tactique*[NB_TACTIQUE]
+	- defausse: Defausse*
+	- pioche_clan: Pioche_Clan*
+	- pioche_tactique: Pioche_Tactique*
+	- dernierJoueur: Joueur*
+	
+	+ getInstance(): static Partie&
+	+ libererInstance(): static void
+
+	+ isIA() const: bool
+	+ VerifGagnantPartie()
+	+ VerifGagnantManche(Joueur* j)
+	+ DonnerMain(): Joueur*
+	+ NombreManches(): int
+	+ ModePartie(): Mode
+	+ afficherFrontiere(): void
+	+ distribuer_debut(): void
+	+ jeu(): void
+	
+}
+
+
+
+Partie *-- "2" Joueur
+Partie *-- "*" Carte
+Partie *-- "9" Borne
+Partie *-- "1" Defausse
+Partie *-- "2" Pioche
+
+Pioche <|-- Pioche_Clan
+Pioche <|-- Pioche_Tactique
+
+Joueur <|-- IA
+
+Carte <|-- Clan
+Carte <|-d- Tactique
+
+Tactique <|-- Ruse
+Tactique <|-- Elite
+Tactique <|-- Combat
+Tactique *-- "1" EffetTactique
+
+EffetTactique <|-- JokerEffet
+EffetTactique <|-- EspionEffet
+EffetTactique <|-- PorteBouclierEffet
+EffetTactique <|-- ColinMaillardEffet
+EffetTactique <|-- CombatBoueEffet
+EffetTactique <|-- ChasseurTeteEffet
+EffetTactique <|-- BansheeEffet
+EffetTactique <|-- TraitreEffet
+EffetTactique <|-- StrategeEffet
+
+Borne *-- "0..2" Combinaison
+
+Combinaison o-- "3..4" Carte
+Pioche "0..1" o-- "*" Carte
+Borne "0..1" o-- "0..8" Carte
+Defausse "0..1" o-- "*" Carte
+Joueur "0..1" o-- "0..7" Carte
+@enduml

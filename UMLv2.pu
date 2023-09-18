@@ -1,0 +1,297 @@
+@startuml
+skinparam nodesep 105
+skinparam ranksep 105
+
+
+enum NomTactique{
+	pasdenom
+	joker
+	espion
+	porte bouclier
+	colin maillard
+	combat de boue
+	chasseur de tete
+	stratege
+	banshee
+	traitre    
+}
+
+enum Couleur {
+	pasdecouleur
+	rouge
+	bleu
+	beige
+	jaune
+	vert
+	violet
+}
+
+enum Mode{
+	normal
+	tactique
+	expert
+}
+
+enum NomCombinaison{
+	suite_couleur
+	brelan
+	couleur
+	suite
+	somme
+}
+
+enum Numero{
+	pasdenumero = 0
+	un = 1
+	deux = 2
+	trois = 3
+	quatre = 4
+	cinq = 5
+	six = 6
+	sept = 7
+	huit = 8
+	neuf = 9
+}
+
+abstract class Carte{
+	# virtual print(ostream& f) const: void
+	+ virtual getCouleur() const: Couleur
+	+ virtual getNumero() const: Numero
+	+ virtual getNom() const: NomTactique
+}
+
+class Clan {
+	# virtual print(ostream& f) const: void
+	- numero: Numero
+	- couleur: Couleur
+	+ Clan(Numero n, Couleur c)
+	+ getNumero() const: Numero
+	+ getCouleur() const: Couleur
+}
+
+abstract class Tactique {
+	# virtual print(ostream& f) const: void
+	- nom: NomTactique
+	+ Tactique(NomTactique n)
+	+ getNom() const: NomTactique    
+}
+
+class Elite {
+	# virtual print(ostream& f) const: void
+	- numero: Numero
+	- couleur: Couleur
+	+ Elite(NomTactique n)
+	+ getNumero() const: Numero
+	+ getCouleur() const: Couleur
+	+ setNumero(Numero n): void
+	+ setCouleur(Couleur c): void
+}
+
+class Combat {
+	# virtual print(ostream& f) const: void
+	+ Combat(NomTactique n)
+}
+
+class Ruse {
+	# virtual print(ostream& f) const: void
+	+ Ruse(NomTactique n)
+}
+
+
+abstract class Pioche {
+	# pile: vector<Type*>
+	+ Empiler(Type* carte): void
+	+ getCarteAPiocher(): Type*
+	+ estVide() bool
+	+ Melanger(): void
+}
+
+note right of Pioche::pile
+	template<typename Type>
+end note
+
+class Pioche_Clan {
+	+ Pioche_Clan(Clan** cartes_clan)
+}
+
+note right of Pioche_Clan
+	class Pioche_Clan : public Pioche<Clan>
+end note
+
+class Pioche_Tactique {
+	+ Pioche_Tactique(Tactique** cartes_tactiques)
+}
+
+note right of Pioche_Tactique
+	class Pioche_Tactique : public Pioche<Tactique>
+end note
+
+
+class Defausse {
+	- cartes: vector<Carte*>
+	+ ajouterCarte(Carte* c): void
+	+ AfficherDeffausse(): void
+}
+
+class Joueur {
+	- numero: int
+	- nom: string
+	- nb_tactiques_jouees: int
+	- scoreManche: int
+	- scorePartie: int
+	- Borne** bornes_revendiquees
+	- cartes: Carte*[7]
+
+	+ Joueur()
+	+ Joueur(int num)
+	+ Joueur(int num, string n)
+	
+	+ getNumero() const
+	+ setNumero(int num)
+	+ getNom() const: string
+	+ setNom(string n): void
+	+ getNb_tactiques_jouee(): const
+	+ setNb_tactiques_jouee(int nb)
+	+ getScoreManche() const: int
+	+ setScoreManche(int score): void
+	+ getScorePartie() const: int
+	+ setScorePartie(int score): void
+	+ ajouterBorneRevendiquee(Borne* b): void
+	+ getCartes(int i) const: Carte*
+	+ setCartes(Carte* c, int i): void
+	+ choisirNom(): string
+	+ afficherCartes(): void
+	+ jouerCarte(int i): void
+	+ piocher(): Carte*
+}
+
+class IA {
+	+ IA()
+	+ JouerAleatoirement(): void
+}
+
+class Combinaison {
+	
+	- c1: const Carte*
+	- c2: const Carte*
+	- c3: const Carte*
+	- c4: const Carte*
+	- nom: NomCombinaison
+	- sommeCartes: int
+	- valeur: int
+	- initializeNom(): const NomCombinaison
+	- initializeSomme(): const int
+	- initializeValeur(): const int
+
+	+ Combinaison(const carte& c1, const carte& c2, const carte& c3)
+	+ Combinaison(const carte& c1, const carte& c2, const carte& c3, const carte& c4)
+	+ getCarte1() const: const Carte&
+	+ getCarte2() const: const Carte&
+	+ getCarte3() const: const Carte&
+	+ getCarte4() const: const Carte&
+	+ getNom() const: const NomCombinaison
+	+ getSommeCartes() const: const int
+	+ getValeur() const: const int
+	
+}
+
+class Borne {
+
+	- numero: const size_t
+	- nbCartes1: size_t
+	- nbCartes2: size_t
+	- proprietaire: Joueur*
+	- premierAposer: Joueur*
+	- cartes1: const Carte**
+	- cartes2: const Carte**
+	- isCombatBoue: bool
+	- isColinMaillard: bool
+
+	+ Borne(size_t n)
+	+ getNumero() const: const size_t&
+	+ ajouter_cartes1(const Carte& c): void
+	+ ajouter_cartes2(const Carte& c): void
+	+ verifRevendication(size_t j): void
+	+ getnbCartes1() const: const size_t&
+	+ getnbCartes2() const: const size_t&
+	+ getProprietaire() const: Joueur*
+	+ getCarte1(int i) const: const Carte*
+	+ getCarte2(int i) const: const Carte*
+	+ CombatBoueTrue(): void
+	+ ColinMaillardTrue(): void
+}
+
+class Partie <<Singleton>> {
+	- instanceUnique: static Partie*
+	- virtual ~Partie()
+	- Partie()
+
+	- mode: Mode
+	- gagnant: Joueur*
+	- ia: IA*
+	- nb_manches: int
+	- joueur1: Joueur*
+	- joueur2: Joueur*
+	- frontiere: Borne*[9]
+	- commence: Joueur*
+	- clan: const Clan*[54]
+	- tactique: Tactique*[9]
+	- defausse: Defausse*
+	- pioche_clan: Pioche_Clan*
+	- pioche_tactique: Pioche_Tactique*
+	
+	+ getInstance(): static Partie&
+	+ libererInstance(): static void
+	
+	+ getMode() const: Mode
+	+ getGagnant() const: Joueur*
+	+ getNb_manches() const: int
+	+ getJoueur1(): Joueur*
+	+ getJoueur2(): Joueur*
+	+ getIA(): IA*
+	+ getFrontiere(int i): Borne*
+	+ getCommence(): Joueur*
+	+ getClan(int i): Clan*
+	+ getTactique(int i): Tactique*
+
+	+ isIA() const: bool
+	+ VerifGagnantPartie(Joueur* j)
+	+ VerifGagnantManche(Joueur* j)
+	+ DonnerMain(): Joueur*
+	+ NombreManches(): int
+	+ scoreAzero(Joueur* j): void
+	+ AfficherTactique(): void
+	+ AfficherClan(): void
+	+ ModePartie(): Mode
+	+ afficherFrontiere(): void
+	
+}
+
+
+
+Partie *-- "2" Joueur
+Partie *-- "*" Carte
+Partie *-- "9" Borne
+Partie *-- "1" Defausse
+Partie *-- "2" Pioche
+
+Pioche <|-- Pioche_Clan
+Pioche <|-- Pioche_Tactique
+
+Joueur <|-- IA
+
+Carte <|-- Clan
+Carte <|-d- Tactique
+
+Tactique <|-- Ruse
+Tactique <|-- Elite
+Tactique <|-- Combat
+
+Borne *-- "0..2" Combinaison
+
+Combinaison o-- "3..4" Carte
+Pioche "0..1" o-- "*" Carte
+Borne "0..1" o-- "0..8" Carte
+Defausse "0..1" o-- "*" Carte
+Joueur "0..1" o-- "0..7" Carte
+@enduml
